@@ -1,0 +1,13 @@
+const n = 10;
+var i,j;
+
+begin
+	i := 1;
+	do
+	begin
+	i:=i+1;
+	write(i)
+	end
+	while(i<=n)
+
+end.
