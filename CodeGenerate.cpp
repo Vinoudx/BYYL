@@ -1,5 +1,5 @@
-
 #define _CRT_SECURE_NO_WARNINGS
+#include <fstream>
 #include "stdafx.h"
 #include "Error.h"
 
@@ -1024,11 +1024,15 @@ void PrintAllInstructions()//最后打印所有生成的指令
 {
 	char		szText[100];
 
+	std::ofstream f("./pcode.txt", std::ios_base::out);
+
 	for(int i=0;i<g_nInstructsIndex;i++)
 	{
 		InstructFromEnumToString(g_Instructs[i].eInstruct,szText);
 		printf("\n%-5d%-15s%-5d%-5d",i,szText,g_Instructs[i].nLevel,g_Instructs[i].nOperand);
+		f << i << ' ' << szText << ' ' << g_Instructs[i].nLevel << ' ' << g_Instructs[i].nOperand << std::endl;
 	}
+	f.close();
 }
 
 void PrintAVariable(int nNameTableIndex)

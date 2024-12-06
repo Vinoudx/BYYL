@@ -305,6 +305,7 @@ int StatementParsing(int nIndentNum)//nIndentNum是打印时要缩进的空格数
 
 				PrintInParsing(g_nWordsIndex, nIndentNum, "StatementParsing");//打印调试信息
 				StatementParsing(nIndentNum + 1);
+				g_nWordsIndex++; //分号
 
 				if (g_Words[g_nWordsIndex].eType == WHILE) {
 					PrintInParsing(g_nWordsIndex, nIndentNum, "WHILE");//打印调试信息
