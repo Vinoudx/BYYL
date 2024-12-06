@@ -1,6 +1,8 @@
 // PL0Compiler1_Net.cpp : 定义控制台应用程序的入口点.
 //
 #define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <string>
 #include "stdafx.h"
 #include "stdio.h"
 #include "string.h"
@@ -17,13 +19,18 @@ int ParsingAnalysis();
 int GenerateAnalysis();
 void Interpreter();
 
-#define		SOURCE_FILE_NAME				"D:\\work\\BYYLL\\BYYLL\\test1.pl0"
+//#define		SOURCE_FILE_NAME				"D:\\work\\BYYLL\\BYYLL\\test1.pl0"
 //#define		SOURCE_FILE_NAME				"SourceFile1.pl0"
+char SOURCE_FILE_NAME[1024];
 
 FILE*														fpSourceFile;
 
 int main(int argc, char* argv[])
 {
+	
+	std::cout<< "输入文件路径\n";
+	scanf("%s", SOURCE_FILE_NAME);
+	std::cout << SOURCE_FILE_NAME;
 	Initialization();
 	PrintSourceFile();
 
@@ -39,7 +46,7 @@ int main(int argc, char* argv[])
 
 	Interpreter();
 
-
+	system("pause");
 	return 0;
 }
 

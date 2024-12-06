@@ -311,6 +311,13 @@ void RegisterInNameTable(enum TYPE_ENUM eType,char *szName,int nNumberValue,int 
 {
 	g_nNameTableIndex++;//名字表中下一个空白处
 
+	for (int i = 0; i < g_nNameTableIndex; i++) {
+		if (strcmp(g_NameTable[i].szName, szName) == 0) {
+			ehandler(REPEAT_IDENTIFIER, 0, szName);
+		}
+	}
+
+
 	strcpy(g_NameTable[g_nNameTableIndex].szName,szName);//登记单词名字
 	g_NameTable[g_nNameTableIndex].eType=eType;//登记单词类型
 
@@ -341,6 +348,8 @@ int LookUpNameTable(char *pIdentifier)//在名字表中查找单词(常量,变量或过程名)
 	for(i=0;i<=g_nNameTableIndex;i++)
 		if(strcmp(g_NameTable[i].szName,pIdentifier)==0)
 			return i;
+
+	ehandler(UNKOWN_IDENTIFIER, 0, pIdentifier);
 
 	return 0;
 }

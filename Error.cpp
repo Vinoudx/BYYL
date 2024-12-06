@@ -3,7 +3,7 @@
 #include "Error.h"
 
 
-void ehandler(ErrorType e, int errorLine) {
+void ehandler(ErrorType e, int errorLine, char* iName) {
 	switch (e) {
 	case NO_LEFT_PARENTHESIS:
 		printf("%s in line %d\n", "expect left parenthesis", errorLine);
@@ -40,6 +40,12 @@ void ehandler(ErrorType e, int errorLine) {
 		break;
 	case NO_PERIOD:
 		printf("%s", "expect '.' at the end of file");
+		break;
+	case REPEAT_IDENTIFIER:
+		printf("\n\n%s %s\n\n", "repeat declearation of identifier",iName);
+		break;
+	case UNKOWN_IDENTIFIER:
+		printf("\n\n%s %s %s\n\n", "use identifier ", iName, " before declearation");
 		break;
 	default:
 		break;

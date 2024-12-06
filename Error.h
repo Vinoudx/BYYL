@@ -11,7 +11,9 @@ enum ErrorType {
 	NO_ASSIGNMENT,
 	NO_DO,
 	NO_END,
-	NO_PERIOD
+	NO_PERIOD,
+	UNKOWN_IDENTIFIER,
+	REPEAT_IDENTIFIER
 };
 
-void ehandler(ErrorType e, int errorLine);
+void ehandler(ErrorType e, int errorLine, char* iName = NULL);
