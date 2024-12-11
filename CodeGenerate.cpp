@@ -474,7 +474,7 @@ int StatementGenerate(int nLevel,int nIndentNum)//nLevel是分程序所在的层次,nInde
 				StatementGenerate(nLevel,nIndentNum+1);//")"后应是"语句"
 
 				g_Instructs[nInstructIndex_IfPos].nOperand = g_nInstructsIndex;
-
+				g_nWordsIndex++;
 
 				//处理else
 				if (g_Words[g_nWordsIndex].eType == ELSE) {

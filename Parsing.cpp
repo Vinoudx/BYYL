@@ -286,7 +286,7 @@ int StatementParsing(int nIndentNum)//nIndentNum是打印时要缩进的空格数
 
 				PrintInParsing(g_nWordsIndex, nIndentNum, "StatementParsing");//打印调试信息
 				nResult = StatementParsing(nIndentNum + 1);//后应是"语句"
-				//g_nWordsIndex++;//取下一个单词
+				g_nWordsIndex++;//取下一个单词
 
 				//处理else
 				if (g_Words[g_nWordsIndex].eType == ELSE) {
@@ -295,7 +295,7 @@ int StatementParsing(int nIndentNum)//nIndentNum是打印时要缩进的空格数
 					PrintInParsing(g_nWordsIndex, nIndentNum, "StatementParsing");//打印调试信息
 					StatementParsing(nIndentNum + 1);
 				}
-
+				g_nWordsIndex++;//取下一个单词
 				return nResult;
 				break;
 
@@ -372,7 +372,7 @@ int StatementParsing(int nIndentNum)//nIndentNum是打印时要缩进的空格数
 				}
 				else
 				{
-					ehandler(NO_SEMICOLON, g_Words[g_nWordsIndex - 1].nLineNo);
+					ehandler(NO_END, g_Words[g_nWordsIndex - 1].nLineNo);
 					return ERROR;//缺少end或分号
 				}
 
