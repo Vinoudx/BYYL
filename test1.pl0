@@ -1,13 +1,25 @@
-const n = 10;
+const n=10;
 var i,j;
 
 begin
-  i := 1;
-  if (i <= n)
-    write(i)
-else 
-    begin
-    j:=i+1;
-    write(j)
-    end;
+
+    i := 1;
+    j := 1;
+    if (i >= n)
+        write(i)
+    else 
+        begin
+            j:=i+2;
+            write(j)
+        end;
+    ;
+
+    j:=1;
+    do
+	    begin
+	        j:=j+1;
+	        write(j)
+	    end;
+	while(j<=n);
+
 end.

@@ -15,7 +15,7 @@ enum	WORD_TYPE_ENUM {//单词类型枚举值
 	BEGIN,
 	END,
 	IF,
-	THEN, // ss
+	//THEN, // ss
 	WHILE,
 	DO,
 	WRITE,

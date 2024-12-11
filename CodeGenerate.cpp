@@ -20,7 +20,7 @@ enum	WORD_TYPE_ENUM {//单词类型枚举值
 	BEGIN,
 	END,
 	IF,
-	THEN, // ss
+	//THEN, // ss
 	WHILE,
 	DO,
 	WRITE,
@@ -297,7 +297,7 @@ int BlockGenerate(int nLevel,int nIndentNum)//nLevel是分程序所在的层次,nIndentNu
 	//所以现在nCurrentLevelAddress就是当前过程数据的nSize
 	g_NameTable[nCurrentLevelNameTableFirstIndex].nSize=nCurrentLevelAddress;
 
-	GenerateOneInstruction(ALLOCATE_INSTRUCT,0,nCurrentLevelAddress);//生成分配内存指令
+	GenerateOneInstruction(ALLOCATE_INSTRUCT,0,nCurrentLevelAddress+1);//生成分配内存指令
 
 	PrintInGenerate(g_nWordsIndex,nIndentNum,"Statement");//打印调试信息
 	StatementGenerate(nLevel,nIndentNum+1);//"分程序"Block中必须有"语句"
