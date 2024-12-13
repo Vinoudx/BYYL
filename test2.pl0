@@ -1,0 +1,22 @@
+const n = 10;
+var j;
+
+begin
+    j:=1;
+    do
+	    begin
+			if (j<5)
+				begin
+					j:=j+1;
+					write(j)
+				end;
+			else
+				begin
+					j:=j+2;
+					write(j)
+				end;
+			;
+	    end;
+	while(j<=n);
+
+end.

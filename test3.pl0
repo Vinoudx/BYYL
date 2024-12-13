@@ -1,0 +1,28 @@
+const n = 20;
+var i,j;
+
+begin
+	i := 1;
+	j := 5;
+	
+	if (j > 3)
+		begin
+			do
+				begin
+					j:=j+2;
+					write(j)
+				end;
+			while(j < n);
+		end;
+	else
+		begin
+			do
+				begin
+					j:=j+1;
+					write(j)
+				end;
+			while(j < n);
+		end;
+	;
+
+end.
