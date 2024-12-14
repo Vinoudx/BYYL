@@ -1,6 +1,6 @@
 const n = 20;
 var i,j;
-
+/*do-while statement in if*/
 begin
 	i := 1;
 	j := 5;

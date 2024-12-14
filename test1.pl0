@@ -1,6 +1,6 @@
 const n=10;
 var i,j;
-
+/*if and do-while*/
 begin
 
     i := 1;

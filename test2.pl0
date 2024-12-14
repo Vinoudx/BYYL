@@ -1,6 +1,6 @@
 const n = 10;
 var j;
-
+/*if statement in do-while*/
 begin
     j:=1;
     do
