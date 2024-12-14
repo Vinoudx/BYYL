@@ -13,7 +13,10 @@ enum ErrorType {
 	NO_END,
 	NO_PERIOD,
 	UNKOWN_IDENTIFIER,
-	REPEAT_IDENTIFIER
+	REPEAT_IDENTIFIER,
+	NO_COLON,
+	NO_ENDSWITCH,
+	REPEAT_CONDITION_IN_SWITCH
 };
 
 void ehandler(ErrorType e, int errorLine, char* iName = NULL);

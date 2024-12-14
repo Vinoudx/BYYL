@@ -19,8 +19,7 @@ int ParsingAnalysis();
 int GenerateAnalysis();
 void Interpreter();
 
-//#define		SOURCE_FILE_NAME				"D:\\work\\BYYLL\\BYYLL\\test1.pl0"
-//#define		SOURCE_FILE_NAME				"SourceFile1.pl0"
+//#define		SOURCE_FILE_NAME				"D:\\work\\BYYLL\\BYYLL\\test4.pl0"
 char SOURCE_FILE_NAME[1024];
 
 FILE*														fpSourceFile;

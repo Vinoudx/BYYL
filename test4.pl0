@@ -1,14 +1,33 @@
 const n = 10;
-var i,j,a;
-
+var i;
+/*switch-case*/
 begin
-  i := 1;
-    if (i <= n)
-        write(i)
-    else 
-        begin
-            j:=i+1;
-            write(j)
-        end;
+	i := 2;
+	
+	switch i:
+	case 1:
+		begin
+			i:=i+5;
+			write(i);
+		end;
+		break;
+	case 2:
+		begin
+			i:=i+6;
+			write(i);	
+		end;
+	case 3:
+		begin
+			i:=i+7;
+			write(i);	
+		end;
+		break;
+	default:
+		begin
+			i:=i+8;
+			write(i);	
+		end;
+		break;
+	endswitch
 
 end.

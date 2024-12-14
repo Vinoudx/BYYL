@@ -38,7 +38,13 @@ enum	WORD_TYPE_ENUM {//单词类型枚举值
 	GTR,
 	GEQ,
 	ASSIGN,
-	ELSE//ss
+	ELSE,//ss
+	SWITCH,//ss
+	CASE,//ss
+	BREAK,//ss
+	DEFAULT,//ss
+	ENDSWITCH,//ss
+	COLON//ss
 };
 
 struct	WORD_STRUCT {//一个单词的数据结构
@@ -273,6 +279,77 @@ int StatementParsing(int nIndentNum)//nIndentNum是打印时要缩进的空格�
 				{
 					ehandler(NO_ASSIGNMENT, g_Words[g_nWordsIndex - 1].nLineNo);
 					return ERROR;//没有检测到':='符号
+				}
+
+				break;
+
+	case SWITCH://进入switch ss
+				PrintInParsing(g_nWordsIndex, nIndentNum, "SWITCH");//打印调试信息
+				g_nWordsIndex++;
+				PrintInParsing(g_nWordsIndex, nIndentNum, "IDENTIFIER");//打印调试信息
+				g_nWordsIndex++;
+				if (g_Words[g_nWordsIndex].eType != COLON) {
+					ehandler(NO_COLON, g_Words[g_nWordsIndex].nLineNo);
+				}
+				PrintInParsing(g_nWordsIndex, nIndentNum, "COLON");//打印调试信息
+				g_nWordsIndex++;
+
+				while (g_Words[g_nWordsIndex].eType == CASE) {
+					PrintInParsing(g_nWordsIndex, nIndentNum, "CASE");//打印调试信息
+					g_nWordsIndex++;
+					PrintInParsing(g_nWordsIndex, nIndentNum, "NUMBER");//打印调试信息
+					g_nWordsIndex++;
+					if (g_Words[g_nWordsIndex].eType != COLON) {
+						ehandler(NO_COLON, g_Words[g_nWordsIndex - 1].nLineNo);
+					}
+					PrintInParsing(g_nWordsIndex, nIndentNum, "COLON");//打印调试信息
+					g_nWordsIndex++;
+					PrintInParsing(g_nWordsIndex, nIndentNum, "StatementParsing");//打印调试信息
+					StatementParsing(nIndentNum + 1);
+					g_nWordsIndex++;//end后的分号
+					if (g_Words[g_nWordsIndex].eType == BREAK) {
+						PrintInParsing(g_nWordsIndex, nIndentNum, "BREAK");//打印调试信息
+						g_nWordsIndex++;
+						if (g_Words[g_nWordsIndex].eType == SEMICOLON) {
+							PrintInParsing(g_nWordsIndex, nIndentNum, "SEMICOLON");//打印调试信息
+							g_nWordsIndex++;
+						}
+						else {
+							ehandler(NO_SEMICOLON, g_Words[g_nWordsIndex - 1].nLineNo);
+						}
+					}
+				}
+
+				if (g_Words[g_nWordsIndex].eType == DEFAULT) {
+					PrintInParsing(g_nWordsIndex, nIndentNum, "DEFAULT");//打印调试信息
+					g_nWordsIndex++;
+					if (g_Words[g_nWordsIndex].eType != COLON) {
+						ehandler(NO_COLON, g_Words[g_nWordsIndex - 1].nLineNo);
+					}
+					PrintInParsing(g_nWordsIndex, nIndentNum, "COLON");//打印调试信息
+					g_nWordsIndex++;
+					PrintInParsing(g_nWordsIndex, nIndentNum, "StatementParsing");//打印调试信息
+					StatementParsing(nIndentNum + 1);
+					g_nWordsIndex++;//end后的分号
+					if (g_Words[g_nWordsIndex].eType == BREAK) {
+						PrintInParsing(g_nWordsIndex, nIndentNum, "BREAK");//打印调试信息
+						g_nWordsIndex++;
+						if (g_Words[g_nWordsIndex].eType == SEMICOLON) {
+							PrintInParsing(g_nWordsIndex, nIndentNum, "SEMICOLON");//打印调试信息
+							g_nWordsIndex++;
+						}
+						else {
+							ehandler(NO_SEMICOLON, g_Words[g_nWordsIndex - 1].nLineNo);
+						}
+					}
+				}
+
+				if (g_Words[g_nWordsIndex].eType == ENDSWITCH) {
+					PrintInParsing(g_nWordsIndex, nIndentNum, "ENDSWITCH");//打印调试信息
+					g_nWordsIndex++;
+				}
+				else {
+					ehandler(NO_ENDSWITCH, g_Words[g_nWordsIndex - 1].nLineNo);
 				}
 
 				break;

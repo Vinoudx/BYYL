@@ -9,6 +9,7 @@
 #define		MAX_NUMBER_OF_WORDS					1000	//可识别的最多单词个数
 #define		MAX_NUMBER_INSTRUCTS					200		//最多的虚拟机指令数
 #define		MAX_NUMBER_NAME_TABLE				100		//名字表中的长度
+#define		MAX_CASES							100     //一个switch中case的最大个数
 
 enum	WORD_TYPE_ENUM {//单词类型枚举值
 	INVALID_WORD,
@@ -43,7 +44,13 @@ enum	WORD_TYPE_ENUM {//单词类型枚举值
 	GTR,
 	GEQ,
 	ASSIGN,
-	ELSE//ss
+	ELSE,//ss
+	SWITCH,//ss
+	CASE,//ss
+	BREAK,//ss
+	DEFAULT,//ss
+	ENDSWITCH,//ss
+	COLON//ss
 };
 
 
@@ -112,6 +119,19 @@ struct INSTRUCT_STRUCT
 INSTRUCT_STRUCT			g_Instructs[MAX_NUMBER_INSTRUCTS];//生成后的代码队列
 int										g_nInstructsIndex;//虚拟机指令指针,取值范围[0,MAX_NUMBER_INSTRUCTS-1]
 
+
+
+struct SWITCH_STRUCT 
+{	
+	bool has_default = false;
+	int default_pos;
+	int num_case = 0;
+	int case_list[MAX_CASES];
+	int case_condition[MAX_CASES];
+	int break_list[MAX_CASES] = { 0 };
+};
+
+
 void InitializeInstructs();
 void InitializeNameTable();
 int BlockGenerate(int nLevel, int nIndentNum);
@@ -125,6 +145,7 @@ int FactorGenerate(int nLevel, int nIndentNum);
 void PrintInGenerate(int nWordsIndex, int nIndentNum, const char* pString);
 int InstructFromEnumToString(enum INSTRUCT_ENUM eInstruct, char* szString);
 int GenerateOneInstruction(INSTRUCT_ENUM eInstruct, int nLevel, int nAddress);
+int GenerateOneInstruction(INSTRUCT_ENUM eInstruct, int nLevel, int nAddress, int pos);
 void PrintAllInstructions();
 void PrintAVariable(int nNameTableIndex);
 void RegisterInNameTable(enum TYPE_ENUM eType, char* szName, int nNumberValue, int* pAddressInThisLevel, int nLevel);
@@ -419,6 +440,9 @@ int StatementGenerate(int nLevel, int nIndentNum)//nLevel是分程序所在的层次,nInd
 	int nInstructIndex_IfPos, nInstructIndex_elsePos;// 保存if跳转指令和else跳转指令的地址 ss
 	int nInstructIndex_doPos, nInstructIndex_WhilePos;// 保存do while的开始地址, 保存do while的结束地址
 
+	int switch_identifier_index, switch_begin, switch_end, num_case_jump;
+	SWITCH_STRUCT this_switch;
+
 	switch (g_Words[g_nWordsIndex].eType)//当前单词类型是
 	{
 	case IDENTIFIER://当前单词是标识符(被赋值变量),应按照"赋值语句"处理
@@ -445,6 +469,116 @@ int StatementGenerate(int nLevel, int nIndentNum)//nLevel是分程序所在的层次,nInd
 		}
 		return ERROR;//没有检测到':='符号
 		break;
+
+	case SWITCH:
+		PrintInGenerate(g_nWordsIndex, nIndentNum, "SWITCH");//打印调试信息
+		g_nWordsIndex++;
+
+		nNameTableIndexOfAssignedVariable = LookUpNameTable(g_Words[g_nWordsIndex].szName);
+		if (nNameTableIndexOfAssignedVariable != 0){
+			//如果查找到,即被赋值变量事先声明过
+			PrintInGenerate(g_nWordsIndex, nIndentNum, "IDENTIFIER");//打印调试信息
+			g_nWordsIndex++;//取下一个单词
+		}
+
+		switch_identifier_index = nNameTableIndexOfAssignedVariable;
+		switch_begin = g_nInstructsIndex;
+
+		g_nWordsIndex++;//分号
+		
+		while (g_Words[g_nWordsIndex].eType == CASE) {
+			PrintInGenerate(g_nWordsIndex, nIndentNum, "CASE");//打印调试信息
+			g_nWordsIndex++;
+
+			this_switch.case_list[this_switch.num_case] = g_nInstructsIndex;
+			this_switch.case_condition[this_switch.num_case] = g_Words[g_nWordsIndex].nNumberValue;
+			for (int i = 0; i < this_switch.num_case; i++) {
+				if (this_switch.case_condition[i] == g_Words[g_nWordsIndex].nNumberValue) {
+					ehandler(REPEAT_CONDITION_IN_SWITCH, g_Words[g_nWordsIndex].nLineNo);
+				}
+			}
+			PrintInGenerate(g_nWordsIndex, nIndentNum, "NUMBER");//打印调试信息
+			g_nWordsIndex++;
+			PrintInGenerate(g_nWordsIndex, nIndentNum, "COLON");//打印调试信息
+			g_nWordsIndex++;
+			PrintInGenerate(g_nWordsIndex, nIndentNum, "StatementParsing");//打印调试信息
+			StatementGenerate(nLevel, nIndentNum + 1);
+			g_nWordsIndex++;//end后的分号
+			if (g_Words[g_nWordsIndex].eType == BREAK) {
+				this_switch.break_list[this_switch.num_case] = g_nInstructsIndex;
+				GenerateOneInstruction(JMP_INSTRUCT, 0, 0);
+				PrintInGenerate(g_nWordsIndex, nIndentNum, "BREAK");//打印调试信息
+				g_nWordsIndex++;
+				g_nWordsIndex++;//分号
+			}
+			this_switch.num_case++;
+		}
+
+		if (g_Words[g_nWordsIndex].eType == DEFAULT) {
+			this_switch.has_default = true;
+			this_switch.default_pos = g_nInstructsIndex;
+			PrintInGenerate(g_nWordsIndex, nIndentNum, "DEFAULT");//打印调试信息
+			g_nWordsIndex++;
+			PrintInGenerate(g_nWordsIndex, nIndentNum, "COLON");//打印调试信息
+			g_nWordsIndex++;
+			PrintInGenerate(g_nWordsIndex, nIndentNum, "StatementParsing");//打印调试信息
+			StatementGenerate(nLevel, nIndentNum + 1);
+			g_nWordsIndex++;//end后的分号
+			if (g_Words[g_nWordsIndex].eType == BREAK) {
+				PrintInGenerate(g_nWordsIndex, nIndentNum, "BREAK");//打印调试信息
+				g_nWordsIndex++;
+				g_nWordsIndex++;//分号
+			}
+		}
+		
+		switch_end = g_nInstructsIndex;
+
+		//计算处理case跳转需要几条指令
+		num_case_jump = this_switch.num_case * 4 + this_switch.has_default;
+		//对所有指令序列进行位置调整
+		g_nInstructsIndex += num_case_jump;
+		for (int i = switch_end; i >= switch_begin; i--) {
+			g_Instructs[i + num_case_jump] = g_Instructs[i];
+		}
+		for (int i = 0; i < this_switch.num_case; i++) {
+			this_switch.case_list[i] += num_case_jump;
+			this_switch.break_list[i] = this_switch.break_list[i] != 0 ? this_switch.break_list[i] + num_case_jump : 0;
+			
+		}
+		this_switch.default_pos = this_switch.default_pos + num_case_jump;
+		switch_end += num_case_jump;
+		//添加case跳转指令
+		for (int i = 0; i < this_switch.num_case; i++) {
+			GenerateOneInstruction(LOAD_INSTRUCT, nLevel - g_NameTable[switch_identifier_index].nLevel, g_NameTable[switch_identifier_index].nAddress, switch_begin);
+			switch_begin++;
+			GenerateOneInstruction(INSTANT_INSTRUCT, 0, this_switch.case_condition[i], switch_begin);
+			switch_begin++;
+			GenerateOneInstruction(NEQ_INSTRUCT, 0, 0, switch_begin);
+			switch_begin++;
+			GenerateOneInstruction(JPC_INSTRUCT, 0, this_switch.case_list[i], switch_begin);
+			switch_begin++;
+		}
+		if (this_switch.has_default) {
+			GenerateOneInstruction(JMP_INSTRUCT, 0, this_switch.default_pos, switch_begin);
+		}
+		else {
+			GenerateOneInstruction(JMP_INSTRUCT, 0, switch_end, switch_begin);
+		}
+		//处理break
+		for (int i = 0; i < this_switch.num_case; i++) {
+			if (this_switch.break_list[i] != 0) {
+				g_Instructs[this_switch.break_list[i]].nOperand = switch_end;
+			}
+		}
+
+		g_nWordsIndex++;//endswitch
+
+		return OK;
+		break;
+
+
+
+
 
 	case IF://如果当前单词是"if",按"条件语句"处理   ss
 
@@ -1028,6 +1162,29 @@ int GenerateOneInstruction(INSTRUCT_ENUM eInstruct, int nLevel, int nOperand)//e
 
 	return 0;
 }
+
+//在指令队列g_Instructs结构数组中生成一条虚拟指令 ss
+int GenerateOneInstruction(INSTRUCT_ENUM eInstruct, int nLevel, int nOperand, int pos)//eInstruct是虚拟指令的操作码,nLevel是虚拟指令操作码引用层与声明层的层次差,nOperand是虚拟指令操作数
+{
+	char		szText[100];
+
+	if (pos >= MAX_NUMBER_INSTRUCTS)
+	{
+		printf("GenerateOneInstruction()--Program too long");//程序过长,无法继续存放
+		return	-1;
+	}
+	g_Instructs[pos].eInstruct = eInstruct;//存放虚拟指令操作码
+	g_Instructs[pos].nLevel = nLevel;//存放虚拟指令操作码引用层与声明层的层次差
+	g_Instructs[pos].nOperand = nOperand;//存放虚拟指令操作数
+
+	//打印调试信息
+	InstructFromEnumToString(g_Instructs[pos].eInstruct, szText);
+	printf("\n\t\t\t\t\t         %-4d%-10s%-4d%-3d", pos, szText, g_Instructs[pos].nLevel, g_Instructs[pos].nOperand);
+
+
+	return 0;
+}
+
 
 void PrintAllInstructions()//最后打印所有生成的指令
 {

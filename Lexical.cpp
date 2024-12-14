@@ -37,7 +37,13 @@ enum	WORD_TYPE_ENUM {//单词类型枚举值
 	GTR,
 	GEQ,
 	ASSIGN,
-	ELSE//ss
+	ELSE,//ss
+	SWITCH,//ss
+	CASE,//ss
+	BREAK,//ss
+	DEFAULT,//ss
+	ENDSWITCH,//ss
+	COLON//ss
 };
 //保留字的名字字符串和类型对照表结构
 struct	RESERVED_WORD_NAME_VS_TYPE_STRUCT {
@@ -47,7 +53,7 @@ struct	RESERVED_WORD_NAME_VS_TYPE_STRUCT {
 
 #define		MAX_LENGTH_OF_A_WORD								10		//一个单词的最多字符个数
 #define		MAX_NUMBER_OF_WORDS									1000	//可识别的最多单词个数
-#define		NUMBER_OF_RESERVED_WORDS							13		//保留字个数 ss 最后去掉then时要减一
+#define		NUMBER_OF_RESERVED_WORDS							18		//保留字个数 ss
 
 struct	WORD_STRUCT {//一个单词的数据结构
 	char											szName[MAX_LENGTH_OF_A_WORD];//单词名字的字符串
@@ -73,20 +79,24 @@ int	GetAWord();
 
 void	InitializeReservedWordTable()//设置保留字单词的名字字符串和相应类型的对照表
 {
-	strcpy(ReservedWordNameVsTypeTable[0].szName, "begin");			ReservedWordNameVsTypeTable[0].eType = BEGIN;
-	strcpy(ReservedWordNameVsTypeTable[1].szName, "call");			ReservedWordNameVsTypeTable[1].eType = CALL;
-	strcpy(ReservedWordNameVsTypeTable[2].szName, "const");			ReservedWordNameVsTypeTable[2].eType = CONST;
+	strcpy(ReservedWordNameVsTypeTable[0].szName, "begin");				ReservedWordNameVsTypeTable[0].eType = BEGIN;
+	strcpy(ReservedWordNameVsTypeTable[1].szName, "call");				ReservedWordNameVsTypeTable[1].eType = CALL;
+	strcpy(ReservedWordNameVsTypeTable[2].szName, "const");				ReservedWordNameVsTypeTable[2].eType = CONST;
 	strcpy(ReservedWordNameVsTypeTable[3].szName, "do");				ReservedWordNameVsTypeTable[3].eType = DO;
-	strcpy(ReservedWordNameVsTypeTable[4].szName, "end");			ReservedWordNameVsTypeTable[4].eType = END;
+	strcpy(ReservedWordNameVsTypeTable[4].szName, "end");				ReservedWordNameVsTypeTable[4].eType = END;
 	strcpy(ReservedWordNameVsTypeTable[5].szName, "if");				ReservedWordNameVsTypeTable[5].eType = IF;
-	strcpy(ReservedWordNameVsTypeTable[6].szName, "odd");			ReservedWordNameVsTypeTable[6].eType = ODD;
-	strcpy(ReservedWordNameVsTypeTable[7].szName, "procedure");		ReservedWordNameVsTypeTable[7].eType = PROCEDURE;
-	strcpy(ReservedWordNameVsTypeTable[8].szName, "read");			ReservedWordNameVsTypeTable[8].eType = READ;
-	//strcpy(ReservedWordNameVsTypeTable[9].szName, "then");			ReservedWordNameVsTypeTable[9].eType = THEN; //ss
-	strcpy(ReservedWordNameVsTypeTable[9].szName, "var");			ReservedWordNameVsTypeTable[9].eType = VAR;
+	strcpy(ReservedWordNameVsTypeTable[6].szName, "odd");				ReservedWordNameVsTypeTable[6].eType = ODD;
+	strcpy(ReservedWordNameVsTypeTable[7].szName, "procedure");			ReservedWordNameVsTypeTable[7].eType = PROCEDURE;
+	strcpy(ReservedWordNameVsTypeTable[8].szName, "read");				ReservedWordNameVsTypeTable[8].eType = READ;
+	strcpy(ReservedWordNameVsTypeTable[9].szName, "var");				ReservedWordNameVsTypeTable[9].eType = VAR;
 	strcpy(ReservedWordNameVsTypeTable[10].szName, "while");			ReservedWordNameVsTypeTable[10].eType = WHILE;
 	strcpy(ReservedWordNameVsTypeTable[11].szName, "write");			ReservedWordNameVsTypeTable[11].eType = WRITE;
-	strcpy(ReservedWordNameVsTypeTable[12].szName, "else");			ReservedWordNameVsTypeTable[12].eType = ELSE;// ss
+	strcpy(ReservedWordNameVsTypeTable[12].szName, "else");				ReservedWordNameVsTypeTable[12].eType = ELSE;// ss
+	strcpy(ReservedWordNameVsTypeTable[13].szName, "switch");			ReservedWordNameVsTypeTable[13].eType = SWITCH;// ss
+	strcpy(ReservedWordNameVsTypeTable[14].szName, "case");				ReservedWordNameVsTypeTable[14].eType = CASE;// ss
+	strcpy(ReservedWordNameVsTypeTable[15].szName, "break");			ReservedWordNameVsTypeTable[15].eType = BREAK;// ss
+	strcpy(ReservedWordNameVsTypeTable[16].szName, "default");			ReservedWordNameVsTypeTable[16].eType = DEFAULT;// ss
+	strcpy(ReservedWordNameVsTypeTable[17].szName, "endswitch");		ReservedWordNameVsTypeTable[17].eType = ENDSWITCH;// ss
 }
 
 void InitializeSingleCharacterTable()//设置单字符单词的字符和相应类型的对照表
@@ -108,6 +118,7 @@ void InitializeSingleCharacterTable()//设置单字符单词的字符和相应类型的对照表
 	SingleCharacterWordTypeTable['.'] = PERIOD;
 	SingleCharacterWordTypeTable['#'] = NEQ;
 	SingleCharacterWordTypeTable[';'] = SEMICOLON;
+	SingleCharacterWordTypeTable[':'] = COLON;
 }
 
 //词法分析
@@ -249,6 +260,17 @@ int GetAWord()//词法分析,获取一个单词
 
 						return OK;
 					}
+					else {
+						g_Words[g_nWordsIndex].eType = COLON;//单词类型为单词类型枚举值ASSIGN
+						strcpy(g_Words[g_nWordsIndex].szName, ":");//识别出的单词放进单词队列g_Words中
+						g_Words[g_nWordsIndex].nLineNo = g_nLineNo;//在源代码文件中单词所在的行数
+						strcpy(g_Words[g_nWordsIndex].nCharValue, ":"); //ss
+						g_nWordsIndex++;//识别出的单词个数加一
+
+						cACharacter = GetACharacterFromFile();//再取一个符号,为下一步准备
+
+						return OK;
+					}
 				}
 				else
 					if (cACharacter == '<')//检测是"<"还是"<="单词?
@@ -367,7 +389,12 @@ void PrintInLexis(int nIndex)//打印单词队列中的一个单词
 	case	END:
 	case	IF:
 	case	ELSE: // ss
-	//case    THEN: // ss
+	case    SWITCH:
+	case    CASE:
+	case	BREAK:
+	case	DEFAULT:
+	case	ENDSWITCH:
+	case	COLON://ss
 	case	WHILE:
 	case	DO:
 	case	WRITE:
@@ -452,8 +479,18 @@ int WordTypeToString(char strString[100], WORD_TYPE_ENUM eWordType)
 		break;
 	case	ELSE:								strcpy(strString, "ELSE"); // ss
 		break;
-	//case	THEN:								strcpy(strString, "THEN"); // ss
-	//	break;
+	case	SWITCH:								strcpy(strString, "SWITCH"); // ss
+		break;
+	case	CASE:								strcpy(strString, "CASE"); // ss
+		break;
+	case	BREAK:								strcpy(strString, "BREAK"); // ss
+		break;
+	case	DEFAULT:							strcpy(strString, "DEFAULT"); // ss
+		break;
+	case	ENDSWITCH:							strcpy(strString, "ENDSWITCH"); // ss
+		break;
+	case	COLON:								strcpy(strString, "COLON"); // ss
+		break;
 	case	ODD:								strcpy(strString, "ODD");
 		break;
 	case	WHILE:								strcpy(strString, "WHILE");

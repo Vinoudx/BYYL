@@ -47,6 +47,15 @@ void ehandler(ErrorType e, int errorLine, char* iName) {
 	case UNKOWN_IDENTIFIER:
 		printf("\n\n%s %s %s\n\n", "use identifier ", iName, " before declearation");
 		break;
+	case NO_COLON:
+		printf("%s in line %d\n", "expect ':'", errorLine);
+		break;
+	case NO_ENDSWITCH:
+		printf("%s in line %d\n", "expect endswitch", errorLine);
+		break;
+	case REPEAT_CONDITION_IN_SWITCH:
+		printf("\n%s in line %d\n", "repeat condition in switch", errorLine);
+		break;
 	default:
 		break;
 	}
